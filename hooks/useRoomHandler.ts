@@ -1,14 +1,11 @@
+"use client";
 import { useEffect, useRef, useCallback, MutableRefObject } from "react";
 import { io, Socket } from "socket.io-client";
 import useSocket from "@/hooks/useSocket";
 import useMediaStream from "@/hooks/useMediaStream";
 import usePeerConnection from "@/hooks/usePeerConnection";
 import { useRouter } from "next/navigation";
-
-// Define the types for the parameters and refs
-interface UseRoomHandlerParams {
-  roomName: string;
-}
+import { getUpdatedMediaStream } from "@/lib/utils";
 
 interface UseRoomHandlerReturn {
   micActive: boolean;
@@ -35,8 +32,12 @@ const useRoomHandler = (roomName: string): UseRoomHandlerReturn => {
   } = useMediaStream();
 
   const {
+    rtcConnectionRef,
     peerVideoRef,
     hostRef,
+    createPeerConnection,
+    handleICECandidateEvent,
+    handleTrackEvent,
     cleanupConnection,
     initiateCall,
     handleReceivedOffer,
@@ -80,6 +81,27 @@ const useRoomHandler = (roomName: string): UseRoomHandlerReturn => {
     router.push("/");
   }, [cleanupConnection, roomName, router]);
 
+  const setupVideoTrack = async (): Promise<void> => {
+    const updatedStream = await getUpdatedMediaStream(micActive, cameraActive);
+    const senders = rtcConnectionRef.current?.getSenders() || [];
+    updatedStream.getTracks().forEach(async (track) => {
+      const sender = senders.find((s) => s.track?.kind === track.kind);
+      if (sender) {
+        await sender.replaceTrack(track);
+      } else {
+        rtcConnectionRef.current?.addTrack(track, updatedStream);
+      }
+    });
+    if (userVideoRef.current) {
+      userVideoRef.current.srcObject = updatedStream;
+    }
+    userStreamRef.current = updatedStream;
+  };
+
+  useEffect(() => {
+    setupVideoTrack();
+  }, [micActive, cameraActive]);
+
   useEffect(() => {
     socketRef.current = io();
     socketRef.current.emit("join", roomName);
@@ -98,16 +120,7 @@ const useRoomHandler = (roomName: string): UseRoomHandlerReturn => {
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [
-    handleRoomJoined,
-    handleRoomCreated,
-    initiateCall,
-    onPeerLeave,
-    handleReceivedOffer,
-    handleAnswer,
-    handlerNewIceCandidateMsg,
-    roomName,
-  ]);
+  }, [roomName]);
 
   return {
     micActive,

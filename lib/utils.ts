@@ -5,7 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(...inputs));
 }
 
-export const getUserMediaStream = async (audio: boolean, video: boolean) => {
+export const getUserMediaStream = async (
+  audio: boolean,
+  video: boolean
+): Promise<MediaStream | undefined> => {
   if (audio || video) {
     const userStream = await navigator.mediaDevices.getUserMedia({
       audio: audio,
@@ -13,9 +16,10 @@ export const getUserMediaStream = async (audio: boolean, video: boolean) => {
     });
     return userStream;
   }
+  return undefined;
 };
 
-export const emptyVideoTrack = () => {
+export const emptyVideoTrack = (): MediaStreamTrack => {
   const canvas = document.createElement("canvas");
   canvas.width = 640;
   canvas.height = 480;
@@ -31,7 +35,7 @@ export const emptyVideoTrack = () => {
   return new MediaStream().getVideoTracks()[0];
 };
 
-export const emptyAudioTrack = () => {
+export const emptyAudioTrack = (): MediaStreamTrack => {
   const ctx = new AudioContext();
   const oscillator = ctx.createOscillator();
   oscillator.frequency.value = 440;
@@ -48,15 +52,16 @@ export const emptyAudioTrack = () => {
 export const getUpdatedMediaStream = async (
   micActive: boolean,
   videoActive: boolean
-) => {
+): Promise<MediaStream> => {
   const userStream = await getUserMediaStream(micActive, videoActive);
-  const audioTrack = micActive
-    ? userStream.getAudioTracks()[0]
-    : emptyAudioTrack();
-  const videoTrack = videoActive
-    ? userStream.getVideoTracks()[0]
-    : emptyVideoTrack();
-
+  const audioTrack =
+    micActive && userStream
+      ? userStream.getAudioTracks()[0]
+      : emptyAudioTrack();
+  const videoTrack =
+    videoActive && userStream
+      ? userStream.getVideoTracks()[0]
+      : emptyVideoTrack();
   const mediaStream = new MediaStream();
   mediaStream.addTrack(audioTrack);
   mediaStream.addTrack(videoTrack);

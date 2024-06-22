@@ -21,8 +21,8 @@ const useMediaStream = (): UseMediaStream => {
     try {
       const stream = await getUpdatedMediaStream(micActive, cameraActive);
       userStreamRef.current = stream;
-      userVideoRef.current.srcObject = stream;
-      userVideoRef.current.onloadedmetadata = () => {
+      userVideoRef.current!.srcObject = stream;
+      userVideoRef.current!.onloadedmetadata = () => {
         if (userVideoRef.current) {
           userVideoRef.current.play();
         }
@@ -32,17 +32,18 @@ const useMediaStream = (): UseMediaStream => {
     }
   }, [micActive, cameraActive]);
 
-  const toggleStream = async (micActive, cameraActive) => {
+  const toggleStream = async (micActive: boolean, cameraActive: boolean) => {
     const stream = await getUpdatedMediaStream(micActive, cameraActive);
     userStreamRef.current = stream;
-    userVideoRef.current.srcObject = stream;
+    userVideoRef.current!.srcObject = stream;
   };
-  const toggleMic = useCallback(async (): void => {
+
+  const toggleMic = useCallback(async (): Promise<void> => {
     setMicActive((prev) => !prev);
     await toggleStream(!micActive, cameraActive);
   }, [toggleStream]);
 
-  const toggleCamera = useCallback(async (): void => {
+  const toggleCamera = useCallback(async (): Promise<void> => {
     setCameraActive((prev) => !prev);
     await toggleStream(micActive, !cameraActive);
   }, [toggleStream]);

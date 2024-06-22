@@ -2,7 +2,6 @@ import { getUpdatedMediaStream } from "@/lib/utils";
 import { useRef, useCallback, useEffect, MutableRefObject } from "react";
 import { Socket } from "socket.io-client";
 
-// Define the types for the parameters and refs
 interface UsePeerConnectionParams {
   socketRef: MutableRefObject<Socket | null>;
   userStreamRef: MutableRefObject<MediaStream | null>;
@@ -64,7 +63,7 @@ const usePeerConnection = ({
   );
 
   const handleTrackEvent = (event: RTCTrackEvent): void => {
-    peerVideoRef.current.srcObject = event.streams[0];
+    peerVideoRef.current!.srcObject = event.streams[0];
   };
 
   const cleanupConnection = useCallback((): void => {
@@ -108,7 +107,7 @@ const usePeerConnection = ({
           rtcConnectionRef.current?.setLocalDescription(offer);
           socketRef.current?.emit("offer", offer, roomName);
         })
-        .catch((error) => console.error(error));
+        .catch((error) => console.error("Error creating offer", error));
     }
   };
 
@@ -128,14 +127,14 @@ const usePeerConnection = ({
           rtcConnectionRef.current?.setLocalDescription(answer);
           socketRef.current?.emit("answer", answer, roomName);
         })
-        .catch((error) => console.error(error));
+        .catch((error) => console.error("Error creating answer", error));
     }
   };
 
   const handleAnswer = (answer: RTCSessionDescriptionInit): void => {
     rtcConnectionRef.current
       ?.setRemoteDescription(answer)
-      .catch((err) => console.error(err));
+      .catch((err) => console.error("Error setting remote description", err));
     setupVideoTrack();
   };
 
@@ -143,7 +142,7 @@ const usePeerConnection = ({
     const candidate = new RTCIceCandidate(incoming);
     rtcConnectionRef.current
       ?.addIceCandidate(candidate)
-      .catch((e) => console.error(e));
+      .catch((e) => console.error("Error adding received ICE candidate", e));
   };
 
   const onPeerLeave = useCallback((): void => {
