@@ -1,0 +1,123 @@
+import { useEffect, useRef, useCallback, MutableRefObject } from "react";
+import { io, Socket } from "socket.io-client";
+import useSocket from "@/hooks/useSocket";
+import useMediaStream from "@/hooks/useMediaStream";
+import usePeerConnection from "@/hooks/usePeerConnection";
+import { useRouter } from "next/navigation";
+
+// Define the types for the parameters and refs
+interface UseRoomHandlerParams {
+  roomName: string;
+}
+
+interface UseRoomHandlerReturn {
+  micActive: boolean;
+  cameraActive: boolean;
+  toggleMic: () => void;
+  toggleCamera: () => void;
+  leaveRoom: () => void;
+  userVideoRef: MutableRefObject<HTMLVideoElement | null>;
+  peerVideoRef: MutableRefObject<HTMLVideoElement | null>;
+}
+
+const useRoomHandler = (roomName: string): UseRoomHandlerReturn => {
+  useSocket();
+  const socketRef = useRef<Socket | null>(null);
+
+  const {
+    micActive,
+    cameraActive,
+    userStreamRef,
+    userVideoRef,
+    getUserMediaStream,
+    toggleMic,
+    toggleCamera,
+  } = useMediaStream();
+
+  const {
+    peerVideoRef,
+    hostRef,
+    cleanupConnection,
+    initiateCall,
+    handleReceivedOffer,
+    handleAnswer,
+    handlerNewIceCandidateMsg,
+    onPeerLeave,
+  } = usePeerConnection({
+    socketRef,
+    userStreamRef,
+    roomName,
+    userVideoRef,
+    cameraActive,
+    micActive,
+  });
+
+  const router = useRouter();
+
+  const handleRoomJoined = useCallback(async () => {
+    await getUserMediaStream();
+    socketRef.current?.emit("ready", roomName);
+  }, [getUserMediaStream, roomName]);
+
+  const handleRoomCreated = useCallback(async () => {
+    hostRef.current = true;
+    await getUserMediaStream();
+  }, [getUserMediaStream]);
+
+  const leaveRoom = useCallback((): void => {
+    socketRef.current?.emit("leave", roomName);
+    if (userVideoRef.current?.srcObject) {
+      (userVideoRef.current.srcObject as MediaStream)
+        .getTracks()
+        .forEach((track) => track.stop());
+    }
+    if (peerVideoRef.current?.srcObject) {
+      (peerVideoRef.current.srcObject as MediaStream)
+        .getTracks()
+        .forEach((track) => track.stop());
+    }
+    cleanupConnection();
+    router.push("/");
+  }, [cleanupConnection, roomName, router]);
+
+  useEffect(() => {
+    socketRef.current = io();
+    socketRef.current.emit("join", roomName);
+
+    socketRef.current.on("joined", handleRoomJoined);
+    socketRef.current.on("created", handleRoomCreated);
+    socketRef.current.on("ready", initiateCall);
+    socketRef.current.on("leave", onPeerLeave);
+    socketRef.current.on("full", () => {
+      window.location.href = "/";
+    });
+    socketRef.current.on("offer", handleReceivedOffer);
+    socketRef.current.on("answer", handleAnswer);
+    socketRef.current.on("ice-candidate", handlerNewIceCandidateMsg);
+
+    return () => {
+      socketRef.current?.disconnect();
+    };
+  }, [
+    handleRoomJoined,
+    handleRoomCreated,
+    initiateCall,
+    onPeerLeave,
+    handleReceivedOffer,
+    handleAnswer,
+    handlerNewIceCandidateMsg,
+    roomName,
+  ]);
+
+  return {
+    micActive,
+    cameraActive,
+    toggleMic,
+    toggleCamera,
+    leaveRoom,
+    userVideoRef,
+    peerVideoRef,
+  };
+};
+
+export default useRoomHandler;
