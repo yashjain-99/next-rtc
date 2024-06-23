@@ -34,6 +34,12 @@ Next-RTC is accessible via a web browser and does not require any installation. 
 
 - Voilà! You are connected. You can start your camera or unmute to begin communicating.
 
+## Diagram illustrating data flow for a successful RTC connection
+
+<div align="center">
+  <img src="https://github.com/yashjain-99/next-rtc/assets/91678870/dcab43cf-caae-4a63-9577-7ef55f8ef7d6" alt="nextRTC" width="600">
+</div>
+
 ## Support and Contact
 If you have any questions, suggestions, or encounter any issues, feel free to reach out to me at [yashj133.yj@gmail.com]. I appreciate your feedback.
 
