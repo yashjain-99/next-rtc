@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Next-RTC
+## _Seamless peer to peer Audio/Video connection_
 
-## Getting Started
+Next-RTC is a web application that offers users a platform for seamless peer-to-peer connections. Built with NextJS, it uses Socket.IO to establish the initial connection and WebRTC for peer communication.
 
-First, run the development server:
+## ✨Features✨
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- User-friendly and visually appealing web interface.
+- Seamless Audio/Video connectivity between peers.
+- No registration required.
+- Advanced webRTC to allow call upgrade/degrade without renogtiation.
+- Mobile responsiveness, providing a smooth experience on both desktop and mobile devices.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Next-RTC is built using modern web development technologies:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- [NextJS] - ReactJS framework.
+- [ReactJS] - JavaScript library for building user interfaces.
+- [socketIO] - For initial peer communication.
+- [webRTC] - API for peer connection.
+- [tailwind] - For styling and layout design.
+- [JavaScript] - For interactivity and real-time feedback.
+- [Render] - For deployment and hosting.
 
-## Learn More
+## Usage
+Next-RTC is accessible via a web browser and does not require any installation. Here's how to get started:
 
-To learn more about Next.js, take a look at the following resources:
+- Visit live deployment on [Render](https://next-rtc.onrender.com/).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Enter the room you want to join or create, then hit "Submit."
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- Share the room code with your remote peer.
 
-## Deploy on Vercel
+- Voilà! You are connected. You can start your camera or unmute to begin communicating.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Support and Contact
+If you have any questions, suggestions, or encounter any issues, feel free to reach out to me at [yashj133.yj@gmail.com]. I appreciate your feedback.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+[ReactJS]: <https://reactjs.org/>
+[NextJS]: <https://nextjs.org/>
+[socketIO]: <https://socket.io/>
+[webRTC]: <https://webrtc.org/>
+[tailwind]: <https://tailwindcss.com/>
+[JavaScript]: <https://developer.mozilla.org/en-US/docs/Web/JavaScript>
+[Render]: <https://render.com/>
